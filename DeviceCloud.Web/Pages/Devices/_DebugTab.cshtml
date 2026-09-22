@@ -1,0 +1,34 @@
+@model DeviceCloud.Web.Pages.Devices.DetailModel
+<!-- 数据明细：记录每一条上报的数据 -->
+<div class="tab-pane fade" id="debug" role="tabpanel">
+    <div class="d-flex justify-content-end align-items-center gap-2 my-2 flex-wrap">
+        <span class="text-secondary" style="font-size: 14px;">选择日期：</span>
+        <input type="date" class="form-control form-control-sm" id="detailStartDate" style="width: 150px;" onchange="loadDataDetail()">
+        <span class="text-secondary">~</span>
+        <input type="date" class="form-control form-control-sm" id="detailEndDate" style="width: 150px;" onchange="loadDataDetail()">
+        <button type="button" class="btn btn-primary btn-sm" onclick="loadDataDetail()">
+            <i class="bi bi-search"></i> 查询
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadDataDetail()" title="刷新">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </div>
+
+    <div id="detailMeta" class="text-secondary mb-1" style="font-size: 13px; display: none;"></div>
+
+    <div id="detailLoading" class="text-center py-4" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
+        </div>
+        <div class="mt-2 text-secondary">正在加载数据明细...</div>
+    </div>
+
+    <div id="detailError" class="alert alert-warning py-2" style="display: none; font-size: 14px;"></div>
+
+    <div id="detailTableWrap" class="table-responsive" style="display: none; max-height: 560px; overflow: auto;">
+        <table class="table table-bordered table-hover mb-0" style="font-size: 13px;">
+            <thead class="table-light" id="detailHead"></thead>
+            <tbody id="detailBody"></tbody>
+        </table>
+    </div>
+</div>

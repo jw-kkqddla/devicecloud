@@ -1,0 +1,481 @@
+/* 后台管理布局样式 */
+:root {
+    --sidebar-width: 256px;
+    --sidebar-collapsed-width: 80px;
+    --header-height: 64px;
+    --footer-height: 40px;
+    --primary-color: #1890ff;
+    --success-color: #52c41a;
+    --warning-color: #faad14;
+    --danger-color: #ff4d4f;
+    --info-color: #909399;
+    --text-color: #333;
+    --text-color-secondary: #909399;
+    --border-color: #dcdfe6;
+    --bg-color: #f0f2f5;
+    --bs-success: #44C13C;
+    --bs-success-rgb: 68, 193, 60;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*:focus {
+    outline: none;
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+    font-size: 14px;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    background-image: url('/images/layout.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* 整体布局 */
+.app-wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+/* 侧边栏 */
+.sidebar-container {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1001;
+    width: var(--sidebar-width);
+    height: 100%;
+    overflow: hidden;
+    background-color: #001529;
+    transition: width 0.3s;
+}
+
+.sidebar-container.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+/* Logo */
+.sidebar-logo {
+    position: relative;
+    width: 100%;
+    height: 64px;
+    line-height: 64px;
+    background-color: #002140;
+    text-align: center;
+    overflow: hidden;
+}
+
+.sidebar-logo a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.sidebar-logo .logo-title {
+    margin-left: 0;
+}
+
+.sidebar-logo i {
+    font-size: 24px;
+}
+
+/* 侧边栏菜单 */
+.sidebar-menu {
+    padding: 12px 0;
+    height: calc(100% - 64px);
+    overflow-y: auto;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+/* 菜单项 */
+.menu-item {
+    list-style: none;
+}
+
+/* 一级菜单项之间的间距 */
+.sidebar-menu > .menu-item {
+    margin-bottom: 10px;
+}
+
+.sidebar-menu > .menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.menu-item > a {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 50px;
+    line-height: 50px;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.menu-item > a:hover,
+.menu-item.active:not(:has(.submenu)) > a {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.menu-item .menu-icon {
+    margin-right: 16px;
+    font-size: 16px;
+}
+
+.menu-item .menu-title {
+    flex: 1;
+    font-size: 14px;
+}
+
+.menu-item .menu-arrow {
+    transition: transform 0.3s ease;
+}
+
+.menu-item.open .menu-arrow {
+    transform: rotate(90deg);
+}
+
+/* 子菜单：用高度+透明度过渡实现平滑展开/收起 */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    background-color: #000c17;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.menu-item.open > .submenu {
+    max-height: 320px;
+    opacity: 1;
+}
+
+.submenu .menu-item > a {
+    padding-left: 30px;
+    height: 45px;
+    line-height: 45px;
+}
+
+/* 主内容区 */
+.main-container {
+    position: relative;
+    min-height: 100%;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+.main-container.sidebar-collapsed {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* 顶部导航 */
+.navbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--sidebar-width);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    height: var(--header-height);
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    transition: left 0.3s;
+}
+
+.navbar.sidebar-collapsed {
+    left: var(--sidebar-collapsed-width);
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-left: 15px;
+    float: left;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-right: 15px;
+    float: right;
+}
+
+.hamburger {
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 20px;
+    color: var(--text-color);
+}
+
+.breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    margin-bottom: 0;
+    font-size: 14px;
+    color: var(--text-color-secondary);
+}
+
+.breadcrumb a {
+    color: var(--text-color-secondary);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb .separator {
+    margin: 0 8px;
+    color: #97a8be;
+}
+
+/* 用户下拉菜单 */
+.user-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 12px;
+    height: var(--header-height);
+}
+
+.user-dropdown:hover {
+    background-color: #f5f7fa;
+}
+
+.user-avatar-icon {
+    font-size: 22px;
+    color: var(--primary-color);
+    margin-right: 8px;
+}
+
+.user-name {
+    font-size: 14px;
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 150px;
+    padding: 5px 0;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 100;
+}
+
+.user-dropdown:hover .user-dropdown-menu {
+    display: block;
+}
+
+.user-dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.user-dropdown-menu a:hover {
+    background-color: #f5f7fa;
+}
+
+/* 主内容 */
+.app-main {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    margin-top: var(--header-height);
+    padding: 15px;
+}
+
+/* 页脚 */
+.app-footer {
+    position: relative;
+    height: var(--footer-height);
+    line-height: var(--footer-height);
+    text-align: center;
+    color: var(--text-color-secondary);
+    font-size: 12px;
+    background-color: #fff;
+    border-top: 1px solid var(--border-color);
+}
+
+/* 卡片 */
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 16px;
+    font-weight: 500;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px; 
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* 列表表格：表头与内容字体一致，表头加粗，整体居中显示 */
+.table thead th,
+.table tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table thead th {
+    font-weight: 600;
+}
+
+/* ===== 折叠态样式 ===== */
+/* 折叠态：允许浮层溢出侧边栏显示 */
+.sidebar-container.collapsed {
+    overflow: visible;
+}
+
+/* 折叠态：菜单容器不裁剪，让浮层能伸出侧边栏 */
+.sidebar-container.collapsed .sidebar-menu {
+    overflow: visible;
+}
+
+/* 折叠态：隐藏 Logo 标题文字 */
+.sidebar-container.collapsed .sidebar-logo .logo-title {
+    display: none;
+}
+
+/* 折叠态：隐藏一级菜单的文字和箭头（不影响浮层内的子项） */
+.sidebar-container.collapsed .sidebar-menu > .menu-item > a .menu-title,
+.sidebar-container.collapsed .sidebar-menu > .menu-item > a .menu-arrow {
+    display: none;
+}
+
+/* 折叠态：一级菜单图标居中 */
+.sidebar-container.collapsed .sidebar-menu > .menu-item > a {
+    justify-content: center;
+    padding: 0;
+}
+
+.sidebar-container.collapsed .sidebar-menu > .menu-item > a .menu-icon {
+    margin-right: 0;
+}
+
+/* 折叠态：一级菜单作为浮层定位基准 */
+.sidebar-container.collapsed .sidebar-menu > .menu-item {
+    position: relative;
+}
+
+/* 折叠态：子菜单默认隐藏（优先级需高于 .menu-item.open > .submenu） */
+.sidebar-container.collapsed .sidebar-menu > .menu-item > .submenu {
+    display: none;
+}
+
+/* 折叠态：hover 一级菜单，右侧弹出子菜单浮层（图标+名称，可点击） */
+.sidebar-container.collapsed .sidebar-menu > .menu-item:hover > .submenu {
+    display: block;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 168px;
+    max-height: 320px;
+    opacity: 1;
+    background-color: #001529;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    padding: 6px 0;
+    z-index: 1003;
+}
+
+/* 折叠态浮层内的子项：紧凑排版，正常显示图标+名称 */
+.sidebar-container.collapsed .sidebar-menu > .menu-item:hover > .submenu .menu-item > a {
+    justify-content: flex-start;
+    padding: 0 16px;
+    height: 42px;
+    line-height: 42px;
+    white-space: nowrap;
+}
+
+/* ===== 展开时文字淡入（避免突兀） ===== */
+.sidebar-container:not(.collapsed) .sidebar-menu > .menu-item > a .menu-title,
+.sidebar-container:not(.collapsed) .sidebar-menu > .menu-item > a .menu-arrow {
+    animation: sidebarTextIn 0.35s ease;
+}
+
+@keyframes sidebarTextIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .sidebar-container {
+        transform: translateX(-100%);
+    }
+
+    .sidebar-container.mobile-show {
+        transform: translateX(0);
+    }
+
+    .main-container,
+    .navbar {
+        margin-left: 0 !important;
+        left: 0 !important;
+    }
+}
+.fullscreen-btn {
+    font-size: 16px;
+}
+.btn-circle {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+    border: 1px solid var(--border-color);
+}

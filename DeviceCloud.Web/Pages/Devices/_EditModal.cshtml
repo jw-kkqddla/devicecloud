@@ -1,0 +1,38 @@
+@model DeviceCloud.Web.Pages.Devices.DetailModel
+<!-- 编辑设备模态框 -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil"></i> 编辑设备</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="mb-3">
+                        <label class="form-label">产品Key</label>
+                        <input type="text" class="form-control" id="editProductKey" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">设备Key</label>
+                        <input type="text" class="form-control" id="editDeviceKey" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">设备名称</label>
+                        <input type="text" class="form-control" id="editDeviceName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">序列号</label>
+                        <input type="text" class="form-control" id="editSn" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitEdit()">
+                    <i class="bi bi-check-lg"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

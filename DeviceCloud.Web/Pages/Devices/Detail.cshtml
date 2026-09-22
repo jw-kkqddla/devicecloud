@@ -1,0 +1,207 @@
+﻿@page
+@model DetailModel
+@{
+    ViewData["Title"] = "设备详情";
+    ViewData["Breadcrumb"] = new List<(string Title, string? Url)>
+    {
+        ("设备管理", null),
+        ("设备列表", Url.Page("/Devices/Index")),
+        ("设备详情", null)
+    };
+}
+
+<div class="container-fluid p-2" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    else
+    {
+        <!-- 如果物模型解析出错，显示提示，方便排查 -->
+        @if (!string.IsNullOrEmpty(Model.TslError))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                物模型解析提示：@Model.TslError
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- 顶部操作栏 -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <!-- 左侧：设备序列号和状态 -->
+            <div class="d-flex align-items-center">
+                <span class="text-secondary me-2" style="font-size: 15px;">设备序列号：</span>
+                <span class="fw-medium me-3" style="font-size: 15px;">@(string.IsNullOrEmpty(Model.Device.Sn) ? "-" : Model.Device.Sn)</span>
+                @if (Model.Device.DeviceStatus == 1)
+                {
+                    <span class="badge bg-success-subtle text-success" style="font-size: 15px;">
+                        <i class="bi bi-check-circle me-1"></i>在线
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger-subtle text-danger" style="font-size: 15px;">
+                        <i class="bi bi-x-circle me-1"></i>离线
+                    </span>
+                }
+            </div>
+            <!-- 右侧：操作按钮 -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-primary btn" onclick="controlDevice()">
+                    <i class="bi bi-sliders"></i> 控制
+                </button>
+                <button class="btn btn-outline-primary btn" onclick="debugDevice()">
+                    <i class="bi bi-sliders"></i> 调试
+                </button>
+                <button class="btn btn-outline-primary btn" onclick="editDevice()">
+                    <i class="bi bi-pencil"></i> 编辑
+                </button>
+            </div>
+        </div>
+
+        <!-- 顶部双栏：历史数据图表 + 设备信息详情 -->
+        <div class="row mb-2">
+            <!-- 左侧 -->
+            <div class="col-lg-6 mb-2">
+                <div class="card h-100" style="border: 1px solid #e5e7eb; border-radius: 12px;">
+                    <div class="mb-0 d-flex align-items-center" style="font-size: 15px; color: #1f2937;">
+                        <span class="me-2 d-inline-block rounded-circle" style="width: 8px; height: 8px; background-color: #10b981;"></span>
+                        占位    
+                    </div>
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center rounded-top" style="border-bottom: 1px solid #e5e7eb; padding: 8px 12px;">
+                        <div class="d-flex align-items-center gap-2"> </div>
+                    </div>
+                    <div class="card-body" style="padding: 12px; min-height: 280px;">
+                        <div class="text-center">
+                            <i class="bi bi-graph-up" style="font-size: 48px;"></i>
+                            <p class="mt-2 mb-0">待开发</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：设备信息详情 -->
+            <div class="col-lg-6 mb-2">
+                <div class="card h-100" style="border: 1px solid #e5e7eb; border-radius: 12px;">
+                    <div class="card-header bg-white rounded-top" style="border-bottom: 1px solid #e5e7eb; padding: 8px 12px;">
+                        <div class="mb-0 d-flex align-items-center" style="font-size: 15px; color: #1f2937;">
+                            <span class="me-2 d-inline-block rounded-circle" style="width: 8px; height: 8px; background-color: #6366f1;"></span>
+                            设备信息
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding: 12px;">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">设备名称</span>
+                                <span class="fw-medium" style="font-size: 13px;">@Model.Device.DeviceName</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">激活状态</span>
+                                <span class="fw-medium" style="font-size: 13px;">@Model.Device.IsActivedDisplay</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">序列号</span>
+                                <span class="fw-medium" style="font-size: 13px;">@(string.IsNullOrEmpty(Model.Device.Sn) ? "-" : Model.Device.Sn)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">数据格式</span>
+                                <span class="fw-medium" style="font-size: 13px;">@Model.Device.DataFmtDisplay</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">认证模式</span>
+                                <span class="fw-medium" style="font-size: 13px;">@Model.Device.AuthModeDisplay</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">激活时间</span>
+                                <span class="fw-medium" style="font-size: 13px;">@(Model.Device.ActivedTimeDisplay ?? "-")</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="text-secondary" style="font-size: 13px;">最后连接</span>
+                                <span class="fw-medium" style="font-size: 13px;">@(Model.Device.LastConnTimeDisplay ?? "-")</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2">
+                                <span class="text-secondary" style="font-size: 13px;">创建时间</span>
+                                <span class="fw-medium" style="font-size: 13px;">@Model.Device.CreateTimeDisplay</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备详情标签页区域 -->
+        <div class="card" style="border: 1px solid #e5e7eb; border-radius: 12px;">
+            <!-- 标签页导航 -->
+            <div class="card-header bg-white p-0 rounded-top" style="border-bottom: 1px solid #e5e7eb;">
+                <ul class="nav device-detail-tabs" id="deviceDetailTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                            <i class="bi bi-speedometer2 me-1"></i> 数据总览
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="business-log-tab" data-bs-toggle="tab" data-bs-target="#business-log" type="button" role="tab">
+                            <i class="bi bi-journal-text me-1"></i> 数据图表
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="property-log-tab" data-bs-toggle="tab" data-bs-target="#property-log" type="button" role="tab">
+                            <i class="bi bi-list-check me-1"></i> 参数分析
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="debug-tab" data-bs-toggle="tab" data-bs-target="#debug" type="button" role="tab">
+                            <i class="bi bi-terminal me-1"></i> 数据明细
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 标签页内容 -->
+            <div class="card-body" style="padding: 12px 16px;">
+                <div class="tab-content" id="deviceDetailTabContent">
+                    <partial name="_OverviewTab" model="Model" />
+
+                    <partial name="_ChartTab" model="Model" />
+
+                    <partial name="_PropertyLogTab" model="Model" />
+
+                    <partial name="_DebugTab" model="Model" />
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="mt-2">
+            <a href="@Url.Page("/Devices/Index", new { productKey = Model.ProductKey })" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> 返回列表
+            </a>
+        </div>
+    }
+
+    <partial name="_EditModal" model="Model" />
+
+    <partial name="_CommandModal" model="Model" />
+    </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/devices/detail.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script>
+        window.__deviceDetail = {
+            productKey: '@Model.ProductKey',
+            deviceKey: '@Model.DeviceKey',
+            deviceName: '@Model.Device.DeviceName'
+        };
+    </script>
+    <script src="~/js/devices/detail.js"></script>
+    <script src="~/js/devices/settings-map.js"></script>
+}
+
+<partial name="_ControlModal" model="Model" />

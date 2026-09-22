@@ -1,0 +1,38 @@
+@model DeviceCloud.Web.Pages.Devices.DetailModel
+<!-- 控制（设置参数下发）模态框 -->
+<div class="modal fade" id="controlDeviceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">控制（设置参数下发）</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <label class="form-label mb-0">机型：</label>
+                    <select id="controlMachineType" class="form-select form-select-sm" style="width:auto;" onchange="onMachineTypeChange()">
+                        @foreach (var m in new[] { "HPVINV02","HPVINV04","HPVINV06","HPVINV07","HPVINV08","HPVINV09","HPVINV10","LPVINV02","UPSCYX01","CG000001","LB6","BMS01","BMS02","BMS03" })
+                        {
+                            <option value="@m" selected="@(Model.MachineType == m)">@m</option>
+                        }
+                    </select>
+                    <small class="text-muted ms-2">（自动识别后已预选，可手动切换）</small>
+                </div>
+                <table class="table table-sm align-middle" id="heep1SettingsTable">
+                    <thead>
+                        <tr><th>字段名</th><th>当前值</th><th style="width:100px;">操作</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="bmsNotSupported" class="alert alert-info" style="display:none;">
+                    <i class="bi bi-info-circle"></i>
+                    BMS 型号（Modbus RTU 协议）的参数设置项暂未移植，如需支持请联系开发。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="sendAllSettings()">批量下发</button>
+            </div>
+        </div>
+    </div>
+</div>

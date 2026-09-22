@@ -1,0 +1,323 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "设备列表";
+    ViewData["Breadcrumb"] = new List<(string Title, string? Url)>
+    {
+        ("设备管理", null),
+        ("设备列表", null)
+    };
+}
+
+<div class="card">
+    <div class="card-body">
+        @Html.AntiForgeryToken()
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+<!-- 搜索栏 -->
+<form class="row g-3 mb-3" method="get">
+    @* <div class="col-md-3">
+        <input type="text" name="productKey" value="@Model.ProductKey"
+               class="form-control" placeholder="产品Key *" required />
+    </div>*@
+    <div class="col-md-2">
+        <input type="text" name="deviceKey" value="@Model.DeviceKey"
+               class="form-control" placeholder="设备Key" />
+    </div>
+    <div class="col-md-2">
+        <input type="text" name="deviceName" value="@Model.DeviceName"
+               class="form-control" placeholder="设备名称" />
+    </div>
+
+    <!-- 搜索/重置 -->
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i> 搜索
+        </button>
+        <button type="button" class="btn btn-bg btn-circle" onclick="location.href='/Devices/Index'">
+            <i class="bi bi-arrow-clockwise"></i> 
+        </button>
+    </div>
+
+    <!-- 工具栏：推到最右边 -->
+    <div class="col-md-5 d-flex justify-content-end align-items-center gap-2">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="bi bi-plus-lg"></i> 新增
+        </button>
+        <button type="button" class="btn btn-primary" onclick="handleExport()">
+            <i class="bi bi-download"></i> 导出
+        </button>
+    </div>
+</form>
+
+        @if (string.IsNullOrWhiteSpace(Model.ProductKey))
+        {
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-info-circle fs-3"></i>
+                <p class="mb-0">未配置默认产品Key，请检查 appsettings.json 中 Quectel:DefaultProductKey 配置</p>
+            </div>
+        }
+        else
+        {
+
+
+            <!-- 表格 -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><input type="checkbox" onchange="toggleSelectAll(this)"></th>
+                            <th>设备Key</th>
+                            <th>设备名称</th>
+                            <th>状态</th>
+                            <th>激活状态</th>
+                            <th>数据格式</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Devices.Any())
+                        {
+                            @foreach (var device in Model.Devices)
+                            {
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>@device.DeviceKey</td>
+                                    <td>@device.DeviceName</td>
+                                    <td>
+                                        <span class="badge bg-@device.DeviceStatusBadge fw-normal">@device.DeviceStatusDisplay</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@(device.IsActived == 1 ? "success" : "warning") fw-normal">@device.IsActivedDisplay</span>
+                                    </td>
+                                    <td>@device.DataFmtDisplay</td>
+                                    <td>@device.CreateTimeLocal.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td>
+                                        <a href="@Url.Page("/Devices/Detail", new { productKey = Model.ProductKey, deviceKey = device.DeviceKey })" class="btn btn-link btn-sm text-primary">
+                                            查看
+                                        </a>
+                                        <button class="btn btn-link btn-sm text-primary" onclick="handleDelete('@device.DeviceKey')">
+                                             删除
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-3"></i>
+                                    <p class="mb-0">暂无数据</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">共 @Model.Devices.Count 条记录</div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.PageNum <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="?productKey=@Model.ProductKey&deviceKey=@Model.DeviceKey&deviceName=@Model.DeviceName&pageNum=@(Model.PageNum - 1)&pageSize=@Model.PageSize">上一页</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">@Model.PageNum</a></li>
+                        <li class="page-item @(Model.Devices.Count < Model.PageSize ? "disabled" : "")">
+                            <a class="page-link" href="?productKey=@Model.ProductKey&deviceKey=@Model.DeviceKey&deviceName=@Model.DeviceName&pageNum=@(Model.PageNum + 1)&pageSize=@Model.PageSize">下一页</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- 新增设备模态框 -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> 新增设备</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    <div class="mb-3">
+                        <label class="form-label">产品Key <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createProductKey" value="@Model.ProductKey" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">设备Key <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createDeviceKey" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">设备名称</label>
+                        <input type="text" class="form-control" id="createDeviceName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">序列号</label>
+                        <input type="text" class="form-control" id="createSn" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">认证模式</label>
+                        <select class="form-select" id="createAuthMode">
+                            <option value="">-- 请选择 --</option>
+                            <option value="1">一机一密</option>
+                            <option value="2">一型一密</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">预共享密钥</label>
+                        <input type="text" class="form-control" id="createPsk" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">指纹</label>
+                        <input type="text" class="form-control" id="createFingerPrint" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreate()">
+                    <i class="bi bi-check-lg"></i> 提交
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 设备密钥显示模态框 -->
+<div class="modal fade" id="secretModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-key"></i> 设备密钥</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success mb-3">
+                    设备创建成功！请保存以下设备密钥：
+                </div>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="deviceSecretValue" readonly />
+                    <button class="btn btn-outline-primary" type="button" onclick="copySecret()">
+                        <i class="bi bi-clipboard"></i> 复制
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="location.reload()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function handleDelete(deviceKey) {
+            if (confirm('是否确认删除该设备？')) {
+                var productKey = '@Model.ProductKey';
+                var data = {
+                    productKey: productKey,
+                    deviceKey: deviceKey
+                };
+
+                fetch('?handler=Delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('删除成功');
+                        location.reload();
+                    } else {
+                        alert(result.message || '删除失败');
+                    }
+                })
+                .catch(error => {
+                    alert('请求失败: ' + error);
+                });
+            }
+        }
+
+        function handleExport() {
+            alert('导出功能开发中...');
+        }
+
+        function toggleSelectAll(checkbox) {
+            var checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(function(cb) {
+                cb.checked = checkbox.checked;
+            });
+        }
+
+        function submitCreate() {
+            var productKey = document.getElementById('createProductKey').value;
+            var deviceKey = document.getElementById('createDeviceKey').value;
+            var deviceName = document.getElementById('createDeviceName').value;
+            var sn = document.getElementById('createSn').value;
+            var authMode = document.getElementById('createAuthMode').value;
+            var psk = document.getElementById('createPsk').value;
+            var fingerPrint = document.getElementById('createFingerPrint').value;
+
+            if (!deviceKey) {
+                alert('设备Key不能为空');
+                return;
+            }
+
+            var data = {
+                productKey: productKey,
+                deviceKey: deviceKey,
+                deviceName: deviceName || '',
+                sn: sn || '',
+                authMode: authMode ? parseInt(authMode) : null,
+                psk: psk || '',
+                fingerPrint: fingerPrint || ''
+            };
+
+            fetch('?handler=Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    document.getElementById('createModal').querySelector('.btn-close').click();
+                    document.getElementById('deviceSecretValue').value = result.data?.deviceSecret || '';
+                    new bootstrap.Modal(document.getElementById('secretModal')).show();
+                } else {
+                    alert(result.message || '创建失败');
+                }
+            })
+            .catch(error => {
+                alert('请求失败: ' + error);
+            });
+        }
+
+        function copySecret() {
+            var secret = document.getElementById('deviceSecretValue').value;
+            navigator.clipboard.writeText(secret).then(function() {
+                alert('已复制到剪贴板');
+            });
+        }
+    </script>
+}

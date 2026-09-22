@@ -1,0 +1,73 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "物模型";
+}
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-diagram-3"></i> 物模型查询
+    </div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="GetTsl">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">产品 Key</label>
+                    <input type="text" name="productKey" value="@Model.ProductKey"
+                           class="form-control" placeholder="请输入产品 Key，如 p11zgw" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> 查询
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.TslResult != null)
+{
+    <div class="card mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-file-code"></i> 物模型数据</span>
+            @if (Model.TslResult.Success)
+            {
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyTslData()">
+                    <i class="bi bi-clipboard"></i> 复制
+                </button>
+            }
+        </div>
+        <div class="card-body">
+            @if (Model.TslResult.Success && Model.TslResult.Data != null)
+            {
+                <div class="mb-3">
+                    <span class="badge bg-primary me-2">产品 Key: @Model.TslResult.Data.ProductKey</span>
+                    <span class="badge bg-success">获取时间: @Model.TslResult.Data.RetrievedAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+                </div>
+                <pre id="tslData" style="background: #f5f5f5; padding: 16px; border-radius: 4px; overflow-x: auto; max-height: 500px; font-size: 12px;">@Model.TslResult.Data.TslData</pre>
+            }
+            else
+            {
+                <div class="alert alert-danger d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <div>
+                        <strong>错误代码:</strong> @Model.TslResult.ErrorCode<br>
+                        @Model.TslResult.Message
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function copyTslData() {
+            var tslData = document.getElementById('tslData').innerText;
+            navigator.clipboard.writeText(tslData).then(function() {
+                alert('已复制到剪贴板');
+            });
+        }
+    </script>
+}

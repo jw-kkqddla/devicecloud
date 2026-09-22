@@ -1,0 +1,50 @@
+/* 站点特定样式 */
+
+/* 表格复选框样式 */
+.table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* 表格操作按钮 */
+.table .btn-link {
+    padding: 0 4px;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.table .btn-link:hover {
+    text-decoration: underline;
+}
+
+/* 卡片标题图标 */
+.card-header i {
+    margin-right: 8px;
+}
+
+/* 表单标签必填标记 */
+.form-label .text-danger {
+    margin-left: 2px;
+}
+
+/* 搜索栏 */
+.search-form {
+    margin-bottom: 15px;
+}
+
+/* 状态徽章 */
+.badge {
+    font-weight: 500;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .app-main {
+        padding: 10px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+}

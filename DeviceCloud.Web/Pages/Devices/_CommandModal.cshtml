@@ -1,0 +1,101 @@
+@model DeviceCloud.Web.Pages.Devices.DetailModel
+<!-- 发送指令模态框 -->
+<div class="modal fade" id="commandModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-sliders me-1"></i> 发送指令 - @Model.Device.DeviceName
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="commandForm">
+                    <div class="mb-3">
+                        <label class="form-label">产品 Key</label>
+                        <input type="text" class="form-control" id="cmdProductKey" value="@Model.ProductKey" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">设备 Key</label>
+                        <input type="text" class="form-control" id="cmdDeviceKey" value="@Model.DeviceKey" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">指令内容 (Text 格式)</label>
+                        <textarea class="form-control" id="cmdData" rows="4" placeholder="请输入要下发的指令，例如：HEEP2&#92;r" style="font-family: monospace; font-size: 14px;"></textarea>
+                        <div class="form-text">支持转义字符：<code>\r</code> (回车)、<code>\n</code> (换行)</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">编码格式</label>
+                                <select class="form-select" id="cmdEncode">
+                                    <option value="Text" selected>Text</option>
+                                    <option value="Hex">Hex</option>
+                                    <option value="Base64">Base64</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">QoS</label>
+                                <select class="form-select" id="cmdQos">
+                                    <option value="">默认</option>
+                                    <option value="0">0 - 最多一次</option>
+                                    <option value="1">1 - 至少一次</option>
+                                    <option value="2">2 - 刚好一次</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">缓存时间 (秒)</label>
+                                <input type="number" class="form-control" id="cmdCacheTime" placeholder="可选" min="0" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="cmdIsCache">
+                                        <label class="form-check-label" for="cmdIsCache">开启缓存</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="cmdIsCover">
+                                        <label class="form-check-label" for="cmdIsCover">覆盖缓存</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 快捷指令 -->
+                    <div class="mb-3">
+                        <label class="form-label">快捷指令</label>
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm me-1 mb-1" onclick="setQuickCommand('HEEP2\\r')">HEEP2\r</button>
+                        </div>
+                    </div>
+                    <!-- 发送结果 -->
+                    <div id="cmdResult" style="display: none;">
+                        <div class="alert alert-success" id="cmdSuccess" style="display: none;">
+                            <i class="bi bi-check-circle me-1"></i>
+                            <span id="cmdSuccessMsg">指令发送成功ok</span>
+                        </div>
+                        <div class="alert alert-danger" id="cmdError" style="display: none;">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            <span id="cmdErrorMsg">指令发送失败</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitCommand()">
+                    <i class="bi bi-send"></i> 发送指令
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
